@@ -1,4 +1,4 @@
 
 EXPORTS
-    wilton_net_wait_for_tcp_connection
+    wilton_process_spawn
     wilton_module_init
