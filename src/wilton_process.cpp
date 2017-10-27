@@ -16,6 +16,13 @@
 #include "staticlib/json.hpp"
 
 #include "wilton/support/alloc_copy.hpp"
+#include "wilton/support/logging.hpp"
+
+namespace { // anonymous
+
+const std::string LOGGER = std::string("wilton.process");
+
+} // namespace
 
 char* wilton_process_spawn(const char* executable, int executable_len,
         const char* args_list_json, int args_list_json_len,
@@ -40,6 +47,11 @@ char* wilton_process_spawn(const char* executable, int executable_len,
             args.push_back(st);
         }
         auto outfile = std::string(output_file, static_cast<uint16_t>(output_file_len));
+        wilton::support::log_debug(LOGGER, "Spawning process,"
+                " executable: [" + executable_str + "]," +
+                " args: [" + std::string(args_list_json, args_list_json_len) + "]" +
+                " output_file: [" + outfile +" ]" +
+                " await exit: [" + sl::support::to_string_bool(await_exit) + "] ...");
         // call utils
         int pid = 0;
         if (0 != await_exit) {
@@ -47,6 +59,7 @@ char* wilton_process_spawn(const char* executable, int executable_len,
         } else {
             pid = sl::utils::exec_async(executable, args, outfile);
         }
+        wilton::support::log_debug(LOGGER, "Process spawn complete,result: [" + sl::support::to_string(pid) +"]");
         *pid_out = pid;
         return nullptr;
     } catch (const std::exception& e) {
