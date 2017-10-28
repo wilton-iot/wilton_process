@@ -51,7 +51,7 @@ char* wilton_process_spawn(const char* executable, int executable_len,
                 " executable: [" + executable_str + "]," +
                 " args: [" + std::string(args_list_json, args_list_json_len) + "]" +
                 " output_file: [" + outfile +" ]" +
-                " await exit: [" + sl::support::to_string_bool(await_exit) + "] ...");
+                " await exit: [" + sl::support::to_string_bool(0 != await_exit) + "] ...");
         // call utils
         int pid = 0;
         if (0 != await_exit) {
