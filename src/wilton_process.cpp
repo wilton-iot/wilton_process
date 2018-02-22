@@ -31,7 +31,7 @@
 #include "staticlib/utils.hpp"
 #include "staticlib/json.hpp"
 
-#include "wilton/support/alloc_copy.hpp"
+#include "wilton/support/alloc.hpp"
 #include "wilton/support/logging.hpp"
 
 namespace { // anonymous
