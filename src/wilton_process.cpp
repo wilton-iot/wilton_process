@@ -36,7 +36,7 @@
 
 namespace { // anonymous
 
-const std::string LOGGER = std::string("wilton.process");
+const std::string logger = std::string("wilton.process");
 
 } // namespace
 
@@ -63,7 +63,7 @@ char* wilton_process_spawn(const char* executable, int executable_len,
             args.push_back(st);
         }
         auto outfile = std::string(output_file, static_cast<uint16_t>(output_file_len));
-        wilton::support::log_debug(LOGGER, "Spawning process,"
+        wilton::support::log_debug(logger, "Spawning process,"
                 " executable: [" + executable_str + "]," +
                 " args: [" + std::string(args_list_json, args_list_json_len) + "]" +
                 " output_file: [" + outfile +" ]" +
@@ -75,7 +75,7 @@ char* wilton_process_spawn(const char* executable, int executable_len,
         } else {
             pid = sl::utils::exec_async(executable, args, outfile);
         }
-        wilton::support::log_debug(LOGGER, "Process spawn complete,result: [" + sl::support::to_string(pid) +"]");
+        wilton::support::log_debug(logger, "Process spawn complete,result: [" + sl::support::to_string(pid) +"]");
         *pid_out = pid;
         return nullptr;
     } catch (const std::exception& e) {
