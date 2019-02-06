@@ -59,7 +59,7 @@ char* wilton_process_spawn(const char* executable, int executable_len,
         auto args = std::vector<std::string>();
         auto args_json = sl::json::load({args_list_json, args_list_json_len});
         for (auto& el : args_json.as_array_or_throw("args_list_json")) {
-            auto& st = el.as_string_nonempty_or_throw("args_list_json");
+            auto& st = el.as_string_or_throw("args_list_json");
             args.push_back(st);
         }
         auto outfile = std::string(output_file, static_cast<uint16_t>(output_file_len));
