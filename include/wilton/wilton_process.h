@@ -40,6 +40,14 @@ char* wilton_process_spawn(
         int await_exit,
         int* pid_out);
 
+char* wilton_process_current_pid(
+        int* pid_out);
+
+char* wilton_process_kill_by_pid(
+        int pid,
+        char** msg_out,
+        int* msg_len_out);
+
 #ifdef __cplusplus
 }
 #endif

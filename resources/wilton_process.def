@@ -14,4 +14,6 @@
 
 EXPORTS
     wilton_process_spawn
+    wilton_process_current_pid
+    wilton_process_kill
     wilton_module_init

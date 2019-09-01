@@ -32,6 +32,7 @@
 #include "staticlib/json.hpp"
 
 #include "wilton/support/alloc.hpp"
+#include "wilton/support/buffer.hpp"
 #include "wilton/support/logging.hpp"
 
 namespace { // anonymous
@@ -83,4 +84,36 @@ char* wilton_process_spawn(const char* executable, int executable_len,
     }
 }
 
+char* wilton_process_current_pid(int* pid_out) /* noexcept */ {
+    if (nullptr == pid_out) return wilton::support::alloc_copy(TRACEMSG("Null 'pid_out' parameter specified"));
+    try {
+        wilton::support::log_debug(logger, "Obtaining PID of the current process ...");
+        int pid = sl::utils::current_process_pid();
+        wilton::support::log_debug(logger, "Process spawn complete,result: [" + sl::support::to_string(pid) +"]");
+        *pid_out = pid;
+        return nullptr;
+    } catch (const std::exception& e) {
+        return wilton::support::alloc_copy(TRACEMSG(e.what() + "\nException raised"));
+    }
+}
 
+char* wilton_process_kill_by_pid(
+        int pid,
+        char** msg_out,
+        int* msg_len_out) /* noexcept */ {
+    if (!sl::support::is_uint32_positive(pid)) return wilton::support::alloc_copy(TRACEMSG(
+            "Invalid 'pid' parameter specified: [" + sl::support::to_string(pid) + "]"));
+    if (nullptr == msg_out) return wilton::support::alloc_copy(TRACEMSG("Null 'msg_out' parameter specified"));
+    if (nullptr == msg_len_out) return wilton::support::alloc_copy(TRACEMSG("Null 'msg_len_out' parameter specified"));
+    try {
+        wilton::support::log_debug(logger, "Is due to kill process, pid: [" + sl::support::to_string(pid) + "] ...");
+        auto err = sl::utils::kill_process(pid);
+        wilton::support::log_debug(logger, "Process kill performed, result: [" + err + "]");
+        auto buf = wilton::support::make_string_buffer(err);
+        *msg_out = buf.data();
+        *msg_len_out = buf.size_int();
+        return nullptr;
+    } catch (const std::exception& e) {
+        return wilton::support::alloc_copy(TRACEMSG(e.what() + "\nException raised"));
+    }
+}

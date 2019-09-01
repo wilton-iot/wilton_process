@@ -76,12 +76,53 @@ support::buffer spawn(sl::io::span<const char> data) {
     return support::make_json_buffer(sl::json::value(pid));
 }
 
+support::buffer current_pid(sl::io::span<const char>) {
+    // call wilton
+    int pid = -1;
+    char* err = wilton_process_current_pid(std::addressof(pid));
+    if (nullptr != err) {
+        support::throw_wilton_error(err, TRACEMSG(err));
+    }
+    return support::make_json_buffer({
+        { "pid", pid }
+    });
+}
+
+support::buffer kill_by_pid(sl::io::span<const char> data) {
+    // json parse
+    auto json = sl::json::load(data);
+    uint32_t pid = 0;
+    for (const sl::json::field& fi : json.as_object()) {
+        auto& name = fi.name();
+        if ("pid" == name) {
+            pid = fi.as_uint32_positive_or_throw(name);
+        } else {
+            throw support::exception(TRACEMSG("Unknown data field: [" + name + "]"));
+        }
+    }
+    if (0 == pid) throw support::exception(TRACEMSG(
+            "Required parameter 'pid' not specified"));
+    // call wilton
+    char* msg_out = nullptr;
+    int msg_len_out = 0;
+    char* err = wilton_process_kill_by_pid(
+            static_cast<int>(pid),
+            std::addressof(msg_out),
+            std::addressof(msg_len_out));
+    if (nullptr != err) {
+        support::throw_wilton_error(err, TRACEMSG(err));
+    }
+    return support::wrap_wilton_buffer(msg_out, msg_len_out);
+}
+
 } // namespace
 }
 
 extern "C" char* wilton_module_init() {
     try {
         wilton::support::register_wiltoncall("process_spawn", wilton::process::spawn);
+        wilton::support::register_wiltoncall("process_current_pid", wilton::process::current_pid);
+        wilton::support::register_wiltoncall("process_kill_by_pid", wilton::process::kill_by_pid);
         return nullptr;
     } catch (const std::exception& e) {
         return wilton::support::alloc_copy(TRACEMSG(e.what() + "\nException raised"));
