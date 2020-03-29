@@ -37,8 +37,15 @@ char* wilton_process_spawn(
         int args_list_json_len,
         const char* output_file,
         int output_file_len,
+        const char* directory,
+        int directory_len,
         int await_exit,
         int* pid_out);
+
+char* wilton_process_spawn_shell(
+        const char* command,
+        int command_len,
+        int* code_out);
 
 char* wilton_process_current_pid(
         int* pid_out);

@@ -44,6 +44,7 @@ const std::string logger = std::string("wilton.process");
 char* wilton_process_spawn(const char* executable, int executable_len,
         const char* args_list_json, int args_list_json_len,
         const char* output_file, int output_file_len,
+        const char* directory, int directory_len,
         int await_exit, int* pid_out) /* noexcept */ {
     if (nullptr == executable) return wilton::support::alloc_copy(TRACEMSG("Null 'executable' parameter specified"));
     if (!sl::support::is_uint16_positive(executable_len)) return wilton::support::alloc_copy(TRACEMSG(
@@ -54,6 +55,9 @@ char* wilton_process_spawn(const char* executable, int executable_len,
     if (nullptr == output_file) return wilton::support::alloc_copy(TRACEMSG("Null 'output_file' parameter specified"));
     if (!sl::support::is_uint16_positive(output_file_len)) return wilton::support::alloc_copy(TRACEMSG(
             "Invalid 'output_file_len' parameter specified: [" + sl::support::to_string(output_file_len) + "]"));
+    if (nullptr == directory) return wilton::support::alloc_copy(TRACEMSG("Null 'directory' parameter specified"));
+    if (!sl::support::is_uint16(directory_len)) return wilton::support::alloc_copy(TRACEMSG(
+            "Invalid 'directory_len' parameter specified: [" + sl::support::to_string(directory_len) + "]"));
     if (nullptr == pid_out) return wilton::support::alloc_copy(TRACEMSG("Null 'pid_out' parameter specified"));
     try {
         auto executable_str = std::string(executable, static_cast<uint16_t>(executable_len));
@@ -64,20 +68,39 @@ char* wilton_process_spawn(const char* executable, int executable_len,
             args.push_back(st);
         }
         auto outfile = std::string(output_file, static_cast<uint16_t>(output_file_len));
+        auto dir = std::string(directory, static_cast<uint16_t>(directory_len));
         wilton::support::log_debug(logger, "Spawning process,"
                 " executable: [" + executable_str + "]," +
                 " args: [" + std::string(args_list_json, args_list_json_len) + "]" +
-                " output_file: [" + outfile +" ]" +
+                " output_file: [" + outfile + "]" +
+                " directory: [" + dir + "]" +
                 " await exit: [" + sl::support::to_string_bool(0 != await_exit) + "] ...");
         // call utils
         int pid = 0;
         if (0 != await_exit) {
-            pid = sl::utils::exec_and_wait(executable, args, outfile);
+            pid = sl::utils::exec_and_wait(executable, args, outfile, dir);
         } else {
-            pid = sl::utils::exec_async(executable, args, outfile);
+            pid = sl::utils::exec_async(executable, args, outfile, dir);
         }
         wilton::support::log_debug(logger, "Process spawn complete,result: [" + sl::support::to_string(pid) +"]");
         *pid_out = pid;
+        return nullptr;
+    } catch (const std::exception& e) {
+        return wilton::support::alloc_copy(TRACEMSG(e.what() + "\nException raised"));
+    }
+}
+
+char* wilton_process_spawn_shell(const char* command, int command_len, int* code_out) /* noexcept */ {
+    if (nullptr == command) return wilton::support::alloc_copy(TRACEMSG("Null 'command' parameter specified"));
+    if (!sl::support::is_uint16_positive(command_len)) return wilton::support::alloc_copy(TRACEMSG(
+            "Invalid 'command_len' parameter specified: [" + sl::support::to_string(command_len) + "]"));
+    if (nullptr == code_out) return wilton::support::alloc_copy(TRACEMSG("Null 'code_out' parameter specified"));
+    try {
+        auto command_str = std::string(command, static_cast<int>(command_len));
+        wilton::support::log_debug(logger, "Spawning shell process, command: [" + command_str + "] ...");
+        int code = sl::utils::shell_exec_and_wait(command_str);
+        wilton::support::log_debug(logger, "Shell spawn complete,result: [" + sl::support::to_string(code) +"]");
+        *code_out = code;
         return nullptr;
     } catch (const std::exception& e) {
         return wilton::support::alloc_copy(TRACEMSG(e.what() + "\nException raised"));
@@ -89,7 +112,7 @@ char* wilton_process_current_pid(int* pid_out) /* noexcept */ {
     try {
         wilton::support::log_debug(logger, "Obtaining PID of the current process ...");
         int pid = sl::utils::current_process_pid();
-        wilton::support::log_debug(logger, "Process spawn complete,result: [" + sl::support::to_string(pid) +"]");
+        wilton::support::log_debug(logger, "PID obtained, value: [" + sl::support::to_string(pid) +"]");
         *pid_out = pid;
         return nullptr;
     } catch (const std::exception& e) {
