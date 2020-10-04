@@ -78,9 +78,9 @@ char* wilton_process_spawn(const char* executable, int executable_len,
         // call utils
         int pid = 0;
         if (0 != await_exit) {
-            pid = sl::utils::exec_and_wait(executable, args, outfile, dir);
+            pid = sl::utils::exec_and_wait(executable_str, args, outfile, dir);
         } else {
-            pid = sl::utils::exec_async(executable, args, outfile, dir);
+            pid = sl::utils::exec_async(executable_str, args, outfile, dir);
         }
         wilton::support::log_debug(logger, "Process spawn complete,result: [" + sl::support::to_string(pid) +"]");
         *pid_out = pid;
