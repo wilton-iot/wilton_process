@@ -62,8 +62,9 @@ support::buffer spawn(sl::io::span<const char> data) {
             "Required parameter 'executable' not specified"));
     if (args.empty()) throw support::exception(TRACEMSG(
             "Required parameter 'args' not specified"));
-    if (routfile.get().empty()) throw support::exception(TRACEMSG(
-            "Required parameter 'outFile' not specified"));    
+    // allowed to be empty
+    //if (routfile.get().empty()) throw support::exception(TRACEMSG(
+    //        "Required parameter 'outFile' not specified"));
     const std::string& executable = rexecutable.get();
     const std::string& outfile = routfile.get();
     const std::string& directory = rdirectory.get();

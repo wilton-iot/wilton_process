@@ -53,7 +53,7 @@ char* wilton_process_spawn(const char* executable, int executable_len,
     if (!sl::support::is_uint16_positive(args_list_json_len)) return wilton::support::alloc_copy(TRACEMSG(
             "Invalid 'args_list_json_len' parameter specified: [" + sl::support::to_string(args_list_json_len) + "]"));
     if (nullptr == output_file) return wilton::support::alloc_copy(TRACEMSG("Null 'output_file' parameter specified"));
-    if (!sl::support::is_uint16_positive(output_file_len)) return wilton::support::alloc_copy(TRACEMSG(
+    if (!sl::support::is_uint16(output_file_len)) return wilton::support::alloc_copy(TRACEMSG(
             "Invalid 'output_file_len' parameter specified: [" + sl::support::to_string(output_file_len) + "]"));
     if (nullptr == directory) return wilton::support::alloc_copy(TRACEMSG("Null 'directory' parameter specified"));
     if (!sl::support::is_uint16(directory_len)) return wilton::support::alloc_copy(TRACEMSG(
